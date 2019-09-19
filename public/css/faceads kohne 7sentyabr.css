@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+   }
+ul{
+  list-style-type: none;
+  margin: 0;
+  padding: 0px;
+  overflow: hidden;
+  background-color:#1a75ff;
+  }
+li {
+  float: left;
+}
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  margin-right: 15px;
+    }
+
+li a:hover:not(.active) {
+  background-color: #66d9ff;
+}
+
+.first{
+  background-color: #3385ff;
+}
+footer{
+  background-color: black;
+  color: white;
+  padding-bottom: 20px;
+   text-align: center;
+}
+h3{
+  color: #1a75ff;
+  text-align: center;
+  font-family:  "Courier New", Lucida Console ;
+  font-size: 30px;
+}
