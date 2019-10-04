@@ -6,12 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomAnalyticsInfo extends Model
 {
-    //
-//'visited_page_link', 'user_ip', 'country', 'http_referer','ip_data'
     protected $fillable = [
         'analytics_type', 'analytics_data'
     ];
-//'ip_data' => 'array',
     protected $casts = [
         'analytics_data' => 'array'
     ];
@@ -23,18 +20,12 @@ class CustomAnalyticsInfo extends Model
 
     public static function get_location(){
         $apiKey_ipgeolocationio = "fb27303e07bf4eb4ac60e3bbc7c2885a";
-//        $ip = "CLIENT_IP_ADDRESS";
         $ip=(string)CustomAnalyticsInfo::get_client_ip_env();
-//        print_r($ip);
-//        exit;
+
         if($ip=='::1')$ip='5.197.246.25';//az kompumun ipsi
 
         $location = CustomAnalyticsInfo::get_geolocation($apiKey_ipgeolocationio, $ip);
-//        $decodedLocation = json_decode($location, true);
         $decodedLocation = json_decode($location);
-//        echo "<pre>";
-//        print_r($decodedLocation);
-//        echo "</pre>";
 
         return $decodedLocation;
     }

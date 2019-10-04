@@ -17,7 +17,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'password', 'profile_image', 'activity', 'sector', 'city', 'customer_type',
-        'street','pricing','pricing2','pricing3','currency'
+        'street','pricing','pricing2','pricing3','currency','social_links'
     ];
 
     /**
@@ -40,6 +40,7 @@ class User extends Authenticatable
         'pricing' => 'array',
         'pricing2' => 'array',
         'pricing3' => 'array',
+        'social_links' => 'array',
     ];
     public function smmservices()
     {

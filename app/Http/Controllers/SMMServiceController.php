@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\SMMService;
 //use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\User;
+use Filestack\FilestackClient;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,37 +13,28 @@ use Illuminate\Support\Facades\Input;
 
 class SMMServiceController extends Controller
 {
-    //
-//    use AuthenticatesUsersUsers;
 
     protected $redirectTo = '/home';
 
     public function __construct()
     {
         $this->middleware('auth');
-//        $this->middleware('auth kohne');
-        $this->middleware('right_user_made_login')->except(['get_ServiceProvidersForEntrepreneur','show_smmservice_work_analyse']);
+        $this->middleware('right_user_made_login')->only(['show_smm_work_form','create_smm_service','update_smm_service','delete_smm_service']);
     }
 
     public function show_smmservice_work_analyse($email,$id)
     {
-//        dd($email);
         $smmmservice_work=SMMService::distinct()->where(['business_mark_id'=>$id,'email'=>$email])->get();
-//        print_r($smmmservice_work);
         return json_encode(array('smmmservice_work'=>$smmmservice_work));
-//        return view('businessmarks.businessMark');
     }
 
     protected function getService(Request $request)
     {
-//        $service = SMMService::where(['email'=>,])->first(); // Product is the model
         $service=Auth::user()->smmservices->where('pricing',$request->selected_packet_price)->first();
-//        return json_encode(['services_for_price'=>$service->services_for_price]);
         return $service;
     }
     protected function setService(Request $request)
     {
-//        $service = SMMService::where(['email'=>,])->first(); // Product is the model
         $service=Auth::user()->smmservices->where('pricing',$request->selected_packet_price)->first();
         return json_encode(['services_for_price'=>$service->services_for_price]);
     }
@@ -51,7 +43,6 @@ class SMMServiceController extends Controller
     {
         $asasas=0;
         $smmservices=Auth::user()->smmservices;
-//        dd($smmservices);
         return view('smmservices.mysmmservices',compact('smmservices',$smmservices));
     }
 
@@ -62,51 +53,22 @@ class SMMServiceController extends Controller
         $price_max=$request->price_max;
         $city=$request->city;
 
-//        $users = App\User::with(['posts' => function ($query) {
-//            $query->where('title', 'like', '%first%');
-//        }])->get();
-//        $user = User::with('Profile')->where('status', 1)->whereHas('Profile', function($q){
-//            $q->where('gender', 'Male');
-//        })->get();
-//        $invoices = Invoice::with(array('user' => function($query) {
-//            $query->where('account_status', '=', 1);
-//        }))->where('invoice_status', '=', 2)->get();
-
-//        dd($price_max);
-
-//        $smmservice_providers = User::whereHas('smmservices', function (Builder $query) {
-////            $query->where('content', 'like', 'foo%');
-////            print($query->get());
-//            $query->exists();
-//        })->get();
         $smmservice_provider_users=User::has('smmservices')->get();
-//        $users = User::with('smmservices')->whereHas('smmservices', function ($query) {
-//            $query->where('is_active', '=', true);
-//        })->get();
-//        whereBetween('price', [$min_price, $max_price])
-//        $smmservice_providers=$smmservice_providers->whereBetween();
         $filtered_collection = $smmservice_provider_users->filter(function ($smmservice_provider_user) use(&$price_min,&$price_max,&$sector,&$city) {
             $minPriceCorresponds=false;
             $maxPriceCorresponds=false;
             $sectorCorresponds=false;
             $cityCorresponds=false;
             foreach ($smmservice_provider_user->pricing as $pricing){
-//                $mincorSP = Post::whereRaw('JSON_CONTAINS(sites, \'{$site_id}\')')->get();
                 if($pricing>=$price_min && $pricing<=$price_max){
                     $minPriceCorresponds=true;
                 }
-//                if($pricing<$price_max){
-//                    $maxPriceCorresponds=true;
-//                }
             }
             if(isset($smmservice_provider_user->pricing2)){
                 foreach ($smmservice_provider_user->pricing2 as $pricing2){
                     if($pricing2>=$price_min && $pricing2<=$price_max){
                         $minPriceCorresponds=true;
                     }
-//                    if($pricing2<$price_max){
-//                        $maxPriceCorresponds=true;
-//                    }
                 }
             }
             if(isset($smmservice_provider_user->pricing3)){
@@ -114,9 +76,6 @@ class SMMServiceController extends Controller
                     if($pricing3>=$price_min && $pricing3<=$price_max){
                         $minPriceCorresponds=true;
                     }
-//                    if($pricing3<$price_max){
-//                        $maxPriceCorresponds=true;
-//                    }
                 }
             }
             foreach ($smmservice_provider_user->sector as $sector_of_user){
@@ -134,21 +93,201 @@ class SMMServiceController extends Controller
             {
                 return false;
             }
-//            return $item->isDog();
         });
-//        ->values();
-
-//        dd($filtered_collection);
-//        return redirect()->intended();
-//        return redirect()->back();
-//        return redirect()->route('profile',['email'=>auth()->user()->email]);
-//        withInput(Input::all());;
         if($request->ajax()){
-//            ,'price_min'=>$price_min,'price_max'=>$price_max,'sector'=>$sector
             return json_encode(['smmservice_provider_users'=>$filtered_collection]);
         }
         return redirect('/profile/'.Auth::user()->email)->with(['smmservice_provider_users'=>$filtered_collection])->withInput();
     }
 
+    public function get_WorksOfServiceProvider(Request $request)
+    {
+        $smmservices=Auth::user()->smmservices()->with('businessMark')->get();
+        if($request->ajax()){
+            return json_encode(['smm_works'=>$smmservices]);
+        }
+        return view('smmservices.mysmmservices',compact('smm_works',$smmservices));
+    }
+
+    public  function show_smm_work_form(Request $request){
+        return view('smmservices.smmserviceform');
+    }
+    public function create_smm_service(Request $request)
+    {
+        $customMessages = [
+            'name.required' => 'ad daxil edilməlidir',
+
+            'activity.required' => 'aktivlik barədə yazılmalıdır',
+            'sector.required' => 'aidiyyatı sektor seçilməlidir',
+            'city.required' => 'şəhər seçilməlidir',
+            'profile_image.required' => 'profil şəkili seçilməlidir',
+            'profile_image.mimes' => 'fayl şəkil tipi olmalidir',
+            'profile_image.max' => 'şəkilin ölçüsü uyğun deyil',
+            'profile_image.uploaded' => 'şəkilin ölçüsü uyğun deyil',
+
+            'name.regex' => 'adı düzgün formada daxil edin',
+
+            'pricing.required'   => 'ödəmə məbləği daxil edilməlidir',
+            'work_start.required'   => 'işin başladığı zaman daxil edilməlidir',
+        ];
+
+//        /^[a-zA-Z][a-zA-Z0-9.,$;]+$/      first letter then alpha numeric
+//        /^[a-z ,.'-]+$/i                  alfa spaceli
+//        /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/   hamsini goturen kasha email
+        $validate = \Validator::make($request->all(), [
+
+            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9üÜöÖəƏğĞçÇşŞ ,.\'-]+$/i',
+
+            'profile_image' => 'required|mimes:jpeg,png,jpg,gif,svg',
+
+            'activity' 		=> 'required',
+
+            'sector' 		=> 'required',
+
+            'city' 		=> 'required',
+
+            'work_start'    => 'required',
+
+        ], $customMessages);
+
+        if(!$_FILES["profile_image"]["tmp_name"]){
+            return redirect()
+                ->back()
+                ->withErrors(['şəkil seçilməyib'])->withInput();
+        }
+
+        if( $validate->fails()){
+
+            return redirect()
+
+                ->back()
+
+                ->withErrors($validate)->withInput();
+
+        }
+
+        $cloudnaryFile=\Cloudinary\Uploader::upload($_FILES["profile_image"]["tmp_name"]);
+        $avatarName=cloudinary_url($cloudnaryFile['public_id']);
+
+
+        $business_mark_create = \App\BusinessMark::create([
+
+            'email'      => 'NO EMAIL',
+
+            'name'       => $request->name,
+
+            'profile_image' => $avatarName,
+
+            'activity' 		=> $request->activity,
+
+            'sector' 		=> $request->sector,
+
+            'city' 		=> $request->city,
+
+        ]);
+
+        $smm_create = \App\SMMService::create([
+
+            'email'      => Auth::user()->email,
+
+            'pricing' 		=> $request->pricing,
+
+            'work_start' 		=> $request->work_start,
+
+            'work_end'  => isset($request->work_end)?$request->work_end:'',
+
+            'business_mark_id'  =>  $business_mark_create->id,
+
+        ]);
+
+        return redirect('profile/'.Auth::user()->email);
+    }
+    public function update_smm_service(Request $request)
+    {
+        $id=$request->route()->parameter('id');
+        $smmService=\App\SMMService::with('businessMark')->where('id',$id)->first();
+        if ($request->isMethod('GET'))
+        {
+            return view('smmservices.smmserviceUpdate',['smmService' => $smmService]);
+        }
+        if ($request->isMethod('POST'))
+        {
+            $customMessages = [
+                'name.required' => 'ad daxil edilməlidir',
+
+                'activity.required' => 'aktivlik barədə yazılmalıdır',
+                'sector.required' => 'aidiyyatı sektor seçilməlidir',
+                'city.required' => 'şəhər seçilməlidir',
+                'profile_image.required' => 'profil şəkili seçilməlidir',
+                'profile_image.mimes' => 'fayl şəkil tipi olmalidir',
+                'profile_image.max' => 'şəkilin ölçüsü uyğun deyil',
+                'profile_image.uploaded' => 'şəkilin ölçüsü uyğun deyil',
+
+                'name.regex' => 'adı düzgün formada daxil edin',
+
+                'pricing.required'   => 'ödəmə məbləği daxil edilməlidir',
+                'work_start.required'   => 'işin başladığı zaman daxil edilməlidir',
+            ];
+
+//        /^[a-zA-Z][a-zA-Z0-9.,$;]+$/      first letter then alpha numeric
+//        /^[a-z ,.'-]+$/i                  alfa spaceli
+//        /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/   hamsini goturen kasha email
+            $validate = \Validator::make($request->all(), [
+
+                'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9üÜöÖəƏğĞçÇşŞ ,.\'-]+$/i',
+
+                'profile_image' => 'sometimes|mimes:jpeg,png,jpg,gif,svg',
+
+                'activity' 		=> 'required',
+
+                'sector' 		=> 'required',
+
+                'city' 		=> 'required',
+
+                'work_start'    => 'required',
+
+            ], $customMessages);
+            if( $validate->fails()){
+                return redirect()->back()->withErrors($validate)->withInput();
+            }
+            $businessMark=$smmService->businessMark();
+            $smmService->businessMark->name= isset($request->name) ? $request->name : $smmService->businessMark->name;
+            $smmService->businessMark->activity= isset($request->activity) ? $request->activity : $smmService->businessMark->activity;
+            $smmService->businessMark->sector= isset($request->sector) ? $request->sector : $smmService->businessMark->sector;
+            $smmService->businessMark->city= isset($request->city) ? $request->city : $smmService->businessMark->city;
+
+
+            $smmService->work_start= isset($request->work_start) ? $request->work_start : $smmService->work_start;
+            $smmService->work_end= isset($request->work_end) ? $request->work_end : $smmService->work_end;
+
+            if($request->hasFile('profile_image')){
+
+                if(!(\UsersTableSeeder::isDefaultFileStackUrl($smmService->businessMark->profile_image))){
+                    $public_idOLD=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$smmService->businessMark->profile_image);
+                    $delete=\Cloudinary\Uploader::destroy($public_idOLD);
+                }
+                $cloudnaryFile=\Cloudinary\Uploader::upload($_FILES["profile_image"]["tmp_name"]);
+                $avatarName=cloudinary_url($cloudnaryFile['public_id']);
+
+                $smmService->businessMark->profile_image=$avatarName;
+            }
+            $smmService->push();
+            return redirect('profile/'.Auth::user()->email);
+        }
+    }
+    public function delete_smm_service(Request $request)
+    {
+        $id=$request->route()->parameter('id');
+        if(\App\SMMService::with('businessMark')->where('id',$id)->where('email',\auth()->user()->email)->first()->businessMark->email=='NO EMAIL'){
+            $profile_image=\App\SMMService::with('businessMark')->where('id',$id)->where('email',\auth()->user()->email)->first()->businessMark->profile_image;
+            $public_idOLD=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$profile_image);
+            $delete=\Cloudinary\Uploader::destroy($public_idOLD);
+
+            $smmServiceBusinessMark=\App\SMMService::with('businessMark')->where('id',$id)->where('email',\auth()->user()->email)->first()->businessMark->delete();
+        }
+
+        $smmService=\App\SMMService::where('id',$id)->where('email',\auth()->user()->email)->delete();;
+        return redirect('profile/'.Auth::user()->email);
+    }
 
 }

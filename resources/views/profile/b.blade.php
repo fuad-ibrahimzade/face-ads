@@ -1,20 +1,7 @@
 <!DOCTYPE html>
 <html>
-{{--<head>--}}
-	{{--<title>FaceAds.com</title>--}}
-	{{--<link rel="stylesheet" type="text/css" href="../../../../../../Users/Sabirfd/Desktop/0innoland%20layihe/10%20avgust/1/Sahibkarın%20Şəxsi%20kabineti%20-%20Copy/fa.css">--}}
-{{--</head>--}}
 @include('parts.head')
 <body>
-
-{{--<ul>--}}
-  {{--<li><a  href="fas.html">Əsas Səhifə</a></li>--}}
-  {{--<li><a href="about.html">Haqqımızda</a></li>--}}
-  {{--<li><a href="SI.html">Saytdan Necə İstifadə Edim ?</a></li>--}}
-  {{--<li><a href="rm.html">Rəqəmsal Marketinqin Əhəmiyyəti Nədir ?</a></li>--}}
-  {{--<li><a href="rating.html">Ən Yaxşını Tap </a></li>--}}
-  {{--<li><a href="contact.html">Əlaqə</a></li>--}}
-{{--</ul>--}}
 @include('parts.navbar')
 <div>
 

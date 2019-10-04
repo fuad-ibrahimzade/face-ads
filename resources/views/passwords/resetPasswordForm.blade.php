@@ -27,7 +27,7 @@
             {{--<input style="margin-left: 35px;" placeholder="maksimum" type="text" name="new_price_max" class="new_price_max">--}}
             {{--<input type="button" name="" value="Qiymət Aralığını Əlavə Et" class="new_price_adder">--}}
             <br>
-            <span  style="margin-left: 5%">Köhnə Şifrəni Yaz</span>  <span style="margin-left: 18%;">Şifrəni Təkrar Yazın</span> <br>
+            <span  style="margin-left: 5%">Yeni Şifrəni Yazın</span>  <span style="margin-left: 18%;">Şifrəni Təkrar Yazın</span> <br>
             <input type="password" name="password">  <input style="margin-left: 25px;" type="password" name="password_confirmation">
 
             <br>

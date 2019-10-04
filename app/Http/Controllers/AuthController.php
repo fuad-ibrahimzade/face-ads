@@ -3,20 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerifyMail;
-use Filestack\FilestackClient;
 use Illuminate\Http\Request;
 //use Illuminate\Support\Facades\Auth;
 
 //use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    /* GET
-
-    */
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
@@ -34,9 +31,6 @@ class AuthController extends Controller
         }
         if ($request->isMethod('GET'))
         {
-//            echo $request->is('freelancer*') . ' aaaaa';
-//            $this->registrationForm($request);
-//            $request->route()->getName()
             if($request->is('freelancer*')){
                 return view('freelancer');
             }
@@ -46,31 +40,11 @@ class AuthController extends Controller
             else if($request->is('brand*')){
                 return view('sahibkar');
             }
-//            if(view()->exists($request->route()->getName())){
-//                return view($request->route()->getName());
-//            }
-//            echo $request->method();
-////            exit;
         }
     }
 
     public function registrationForm(Request $request)
     {
-//        echo $request->url();
-//        return view('freelancer');
-//        echo Route::current()->getName();
-
-//        switch (Route::current()->getName()){
-//            case 'freelancer':
-//                return view('freelancer');
-//            break;
-//                case 'afq':
-//                    return view('afq');
-//            break;
-//                case 'sahibkar':
-//                    return view('sahibkar');
-//        }
-//        echo \Auth::check() . ' ale';
         if($request->is('register*')){
 //            if(($request->has)
             return view('register');
@@ -85,15 +59,8 @@ class AuthController extends Controller
         else if($request->is('brand*')){
             return view('sahibkar');
         }
-//        if($request->is('sahibkar/*')){
-
-//        return view('custom_auth.register');
 
     }
-
-    /* POST
-
-    */
 
     public function registerUser(Request $request)
 
@@ -124,9 +91,10 @@ class AuthController extends Controller
 //        /^[a-z ,.'-]+$/i                  alfa spaceli
 //        /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/   hamsini goturen kasha email
 //        'email'	 	=> 'required|email|unique:users|max:255|regex:/^[a-zA-Z]([a-zA-Z0-9_\.\-\+])+\@([a-zA-Z]([a-zA-Z0-9\-])+\.)+[a-zA-Z]([a-zA-Z0-9]{2,4})+$/',
+//        'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9 ,.\'-]+$/i',
         $requirementsArray=[
 
-            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9 ,.\'-]+$/i',
+            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9üÜöÖəƏğĞçÇşŞ ,.\'-]+$/i',
 
             'email'	 	=> 'required|email|unique:users|max:255',
 
@@ -145,41 +113,10 @@ class AuthController extends Controller
 
         if($customer_type!='Entrepreneur')$requirementsArray['pricing']='required';
         $validate = \Validator::make($request->all(), $requirementsArray, $customMessages);
-//        $validate = \Validator::make($request->all(), [
-//
-//            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9 ,.\'-]+$/i',
-//
-//            'email'	 	=> 'required|email|unique:users|max:255|regex:/^[a-zA-Z]([a-zA-Z0-9_\.\-\+])+\@([a-zA-Z]([a-zA-Z0-9\-])+\.)+[a-zA-Z]([a-zA-Z0-9]{2,4})+$/',
-//
-//            'password' 	=> 'required|confirmed|max:255',
-//
-//
-//            'profile_image' => 'required|mimes:jpeg,png,jpg,gif,svg',
-//
-//            'activity' 		=> 'required',
-//
-//            'sector' 		=> 'required',
-//
-//            'city' 		=> 'required',
-//
-//            'pricing'      => 'required'
-//
-//        ], $customMessages);
-//        'password_confirmation' => 'required ',
-//        |max:2048     profile_image-den
 
-//        'customer_type' 		=> 'required'
-//        'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         if( $validate->fails()){
 
-//            $messages = $validate->messages();
-//
-//            foreach ($messages->all('<li>:message</li>') as $message)
-//            {
-//                echo $message;
-//            }
-//            exit;
             return redirect()
 
                 ->back()
@@ -187,65 +124,25 @@ class AuthController extends Controller
                 ->withErrors($validate)->withInput();
 
         }
+        if(!$_FILES["profile_image"]["tmp_name"]){
+            return redirect()
+                ->back()
+                ->withErrors(['şəkil seçilməyib'])->withInput();
+        }
 
-        $client = new FilestackClient('AcDOjh26RKicWlRgz3T6Xz');
-        $filelink = $client->upload($_FILES["profile_image"]["tmp_name"]);
-//        dd($filelink);
-//        dd($filelink->handle);
-//        $handle='PKD0q9TFqrQGW6JaTNqA';
-//        $filename='"php5F91.tmp';
-//
-//
-////        agency_profile.jpg            AJRkJtVBR7qpgIRC1Ff2
-////        freelancer_profile.jpg        3m99mKSGRLaoU4yMQ3ln
-////        entrepreneur_profile.jpg      wUfnrICRjWzrkFCzPQBC
-////        business_mark_profile.jpg     b6TJzC9EQy0l4SOdHl6Q
-//
-//        $filelink = new Filelink($handle, "AcDOjh26RKicWlRgz3T6Xz");
-//
-//        $content = $filelink->getContent();
+        $cloudnaryFile=\Cloudinary\Uploader::upload($_FILES["profile_image"]["tmp_name"]);
 
+        $avatarName=cloudinary_url($cloudnaryFile['public_id']);
 
-//        $check = getimagesize($_FILES["profile_image"]["tmp_name"]);
-//
-//        $imageSRC='';
-//        if($check !== false) {
-//            $data = base64_encode(file_get_contents( $_FILES["profile_image"]["tmp_name"] ));
-////            echo "copy + paste the data below, use it as a string in ur JavaScript Code<br><br>";
-//            $imageSRC='data:'.$check["mime"].';base64,'.$data;
-////            echo "<textarea id='data' style=''>data:".$check["mime"].";base64,".$data."</textarea>";
-////            echo '<img src="'.$imageSRC.'"/>';
-////            exit;
-//        } else {bb@bb.com
-//            echo "File is not an image.";
-//        }
-
-
-
-//        $avatarName = $request->name.'_avatar'.time().'.'.$request->profile_image->getClientOriginalExtension();
-//
-//        $request->profile_image->storeAs('public/avatars',$avatarName);
-////        $avatarName=$imageSRC;
-        $avatarName=$filelink->url();
-
-//        ==============
-//        $image = $request->file('profile_image');
-//        $name = Str::slug($request->input('name')).'_'.time();
-//        $folder = '/uploads/images/';
-//        $filePath = $folder . $name. '.' . $image->getClientOriginalExtension();
-////        $this->uploadOne($image, $folder, 'public', $name);
-//        // Set user profile image path in database to filePath
-//        $name = !is_null($name) ? $name : Str::random(25);
-//        $file = $image->storeAs($folder, $name.'.'.$image->getClientOriginalExtension(), 'public');
-////        $user->profile_image = $filePath;
-//        $avatarName=$filePath;
-//        ==============
-        $pricing1 = array_map(
-            function($value) { return (int)$value; },
-            $request->pricing
-        );
+        $pricing1=null;
         $pricing2=null;
         $pricing3=null;
+        if(isset($request->pricing)){
+            $pricing1= array_map(
+                function($value) { return (int)$value; },
+                $request->pricing
+            );
+        }
         if(isset($request->pricing2)){
             $pricing2= array_map(
                 function($value) { return (int)$value; },
@@ -257,6 +154,22 @@ class AuthController extends Controller
                 function($value) { return (int)$value; },
                 $request->pricing3
             );
+        }
+
+        $cities=["VI"=>"ABŞ Virgin adaları","UM"=>"ABŞ-a bağlı ki&ccedil;ik adacıqlar","AX"=>"Aland adaları","AL"=>"Albaniya","DE"=>"Almaniya","US"=>"Amerika Birləşmiş Ştatları","AS"=>"Amerika Samoası","AD"=>"Andorra","AI"=>"Angilya","AO"=>"Anqola","AQ"=>"Antarktika","AG"=>"Antiqua və Barbuda","AR"=>"Argentina","AW"=>"Aruba","AC"=>"Askenson adası","AU"=>"Avstraliya","AT"=>"Avstriya","AZ"=>"Azərbaycan","BS"=>"Baham adaları","BD"=>"Banqladeş","BB"=>"Barbados","BY"=>"Belarus","BE"=>"Bel&ccedil;ika","BZ"=>"Beliz","BJ"=>"Benin","BM"=>"Bermud adaları","BH"=>"Bəhreyn","AE"=>"Birləşmiş Ərəb Əmirlikləri","GB"=>"Birləşmiş Krallıq","BO"=>"Boliviya","BG"=>"Bolqarıstan","BA"=>"Bosniya və Herseqovina","BW"=>"Botsvana","BR"=>"Braziliya","IO"=>"Britaniyanın Hind Okeanı Ərazisi","VG"=>"Britaniyanın Virgin adaları","BN"=>"Bruney","BF"=>"Burkina Faso","BI"=>"Burundi","BT"=>"Butan","JE"=>"Cersi","GI"=>"Cəbəll&uuml;tariq","ZA"=>"Cənub Afrika","GS"=>"Cənubi Corciya və Cənubi Sendvi&ccedil; adaları","KR"=>"Cənubi Koreya","SS"=>"Cənubi Sudan","DJ"=>"Cibuti","TD"=>"&Ccedil;ad","CZ"=>"&Ccedil;exiya","CL"=>"&Ccedil;ili","CN"=>"&Ccedil;in","DK"=>"Danimarka","DG"=>"Dieqo Qarsiya","DM"=>"Dominika","DO"=>"Dominikan Respublikası","ET"=>"Efiopiya","EC"=>"Ekvador","GQ"=>"Ekvatorial Qvineya","ER"=>"Eritreya","AM"=>"Ermənistan","EE"=>"Estoniya","SZ"=>"Esvatini","AF"=>"Əfqanıstan","DZ"=>"Əlcəzair","FO"=>"Farer adaları","PS"=>"Fələstin Əraziləri","FJ"=>"Fici","PH"=>"Filippin","FI"=>"Finlandiya","FK"=>"Folklend adaları","FR"=>"Fransa","GF"=>"Fransa Qvianası","PF"=>"Fransa Polineziyası","TF"=>"Fransanın Cənub Əraziləri","GG"=>"Gernsi","GE"=>"G&uuml;rc&uuml;stan","HT"=>"Haiti","IN"=>"Hindistan","HN"=>"Honduras","HK"=>"Honq Konq X&uuml;susi İnzibati Ərazi &Ccedil;in","HR"=>"Xorvatiya","ID"=>"İndoneziya","JO"=>"İordaniya","IQ"=>"İraq","IR"=>"İran","IE"=>"İrlandiya","IS"=>"İslandiya","ES"=>"İspaniya","IL"=>"İsrail","SE"=>"İsve&ccedil;","CH"=>"İsve&ccedil;rə","IT"=>"İtaliya","CV"=>"Kabo-Verde","KH"=>"Kamboca","CM"=>"Kamerun","CA"=>"Kanada","IC"=>"Kanar adaları","BQ"=>"Karib Niderlandı","KY"=>"Kayman adaları","KE"=>"Keniya","CY"=>"Kipr","KI"=>"Kiribati","CC"=>"Kokos (Kilinq) adaları","CO"=>"Kolumbiya","KM"=>"Komor adaları","CG"=>"Konqo - Brazzavil","CD"=>"Konqo - Kinşasa","XK"=>"Kosovo","CR"=>"Kosta Rika","CI"=>"Kotd&rsquo;ivuar","CU"=>"Kuba","CK"=>"Kuk adaları","CW"=>"Kurasao","KW"=>"K&uuml;veyt","GA"=>"Qabon","GM"=>"Qambiya","GH"=>"Qana","GY"=>"Qayana","KZ"=>"Qazaxıstan","EH"=>"Qərbi Saxara","QA"=>"Qətər","KG"=>"Qırğızıstan","GD"=>"Qrenada","GL"=>"Qrenlandiya","GU"=>"Quam","GP"=>"Qvadelupa","GT"=>"Qvatemala","GN"=>"Qvineya","GW"=>"Qvineya-Bisau","LA"=>"Laos","LV"=>"Latviya","LS"=>"Lesoto","LR"=>"Liberiya","LI"=>"Lixtenşteyn","LT"=>"Litva","LB"=>"Livan","LY"=>"Liviya","LU"=>"L&uuml;ksemburq","HU"=>"Macarıstan","MG"=>"Madaqaskar","MO"=>"Makao X&uuml;susi İnzibati Ərazi &Ccedil;in","MK"=>"Makedoniya","MW"=>"Malavi","MY"=>"Malayziya","MV"=>"Maldiv adaları","ML"=>"Mali","MT"=>"Malta","MH"=>"Marşal adaları","MQ"=>"Martinik","MU"=>"Mavriki","MR"=>"Mavritaniya","YT"=>"Mayot","MX"=>"Meksika","IM"=>"Men adası","MA"=>"Mərakeş","CF"=>"Mərkəzi Afrika Respublikası","FM"=>"Mikroneziya","CX"=>"Milad adası","EG"=>"Misir","MD"=>"Moldova","MC"=>"Monako","MN"=>"Monqolustan","MS"=>"Monserat","ME"=>"Monteneqro","MZ"=>"Mozambik","PM"=>"M&uuml;qəddəs Pyer və Mikelon","SH"=>"M&uuml;qəddəs Yelena","MM"=>"Myanma","NA"=>"Namibiya","NR"=>"Nauru","NP"=>"Nepal","NL"=>"Niderland","NE"=>"Niger","NG"=>"Nigeriya","NI"=>"Nikaraqua","NU"=>"Niue","NF"=>"Norfolk adası","NO"=>"Norve&ccedil;","OM"=>"Oman","UZ"=>"&Ouml;zbəkistan","PK"=>"Pakistan","PW"=>"Palau","PA"=>"Panama","PG"=>"Papua-Yeni Qvineya","PY"=>"Paraqvay","PE"=>"Peru","PN"=>"Pitkern adaları","PL"=>"Polşa","PT"=>"Portuqaliya","XA"=>"Psevdo-Aksent","XB"=>"Psevdo-Bidi","PR"=>"Puerto Riko","RE"=>"Reyunyon","RW"=>"Ruanda","RO"=>"Rumıniya","RU"=>"Rusiya","SV"=>"Salvador","WS"=>"Samoa","SM"=>"San-Marino","ST"=>"San-Tome və Prinsipi","SN"=>"Seneqal","MF"=>"Sent Martin","BL"=>"Sent-Bartelemi","KN"=>"Sent-Kits və Nevis","LC"=>"Sent-Lusiya","VC"=>"Sent-Vinsent və Qrenadinlər","RS"=>"Serbiya","EA"=>"Seuta və Melilya","SC"=>"Seyşel adaları","SA"=>"Səudiyyə Ərəbistanı","SG"=>"Sinqapur","SX"=>"Sint-Marten","SK"=>"Slovakiya","SI"=>"Sloveniya","SB"=>"Solomon adaları","SO"=>"Somali","SD"=>"Sudan","SR"=>"Surinam","SY"=>"Suriya","SJ"=>"Svalbard və Yan-Mayen","SL"=>"Syerra-Leone","TL"=>"Şərqi Timor","KP"=>"Şimali Koreya","MP"=>"Şimali Marian adaları","LK"=>"Şri-Lanka","TJ"=>"Tacikistan","TH"=>"Tailand","TZ"=>"Tanzaniya","TW"=>"Tayvan","TK"=>"Tokelau","TG"=>"Toqo","TO"=>"Tonqa","TC"=>"T&ouml;rks və Kaykos adaları","TT"=>"Trinidad və Tobaqo","TA"=>"Tristan da Kunya","TN"=>"Tunis","TV"=>"Tuvalu","TR"=>"T&uuml;rkiyə","TM"=>"T&uuml;rkmənistan","UA"=>"Ukrayna","UG"=>"Uqanda","WF"=>"Uollis və Futuna","UY"=>"Uruqvay","VU"=>"Vanuatu","VA"=>"Vatikan","VE"=>"Venesuela","VN"=>"Vyetnam","JM"=>"Yamayka","JP"=>"Yaponiya","NC"=>"Yeni Kaledoniya","NZ"=>"Yeni Zelandiya","YE"=>"Yəmən","GR"=>"Yunanıstan","ZM"=>"Zambiya","ZW"=>"Zimbabve"];
+        $city=$cities[$request->city];
+
+        $social_links=null;
+        if(isset($request->social)){
+            $social_links=array();
+            $social_links['Facebook']=$request->social[0];
+            $social_links['Twitter']=$request->social[1];
+            $social_links['Instagram']=$request->social[2];
+            $social_links['Youtube']=$request->social[3];
+            $social_links['Pinterest']=$request->social[4];
+            $social_links['Whatsapp']=$request->social[5];
+            $social_links['Yelp']=$request->social[6];
+            $social_links['Skype']=$request->social[7];
         }
 
         $user_create = \App\User::create([
@@ -279,7 +192,9 @@ class AuthController extends Controller
 
             'pricing3'    =>  isset($request->pricing3) ? $pricing3 : null,
 
-            'city' 		=> $request->city,
+            'social_links'  =>  $social_links,
+
+            'city' 		=> $city,
 
             'customer_type' 		=> $customer_type,
 
@@ -303,46 +218,19 @@ class AuthController extends Controller
             }
         }
 
-        $entrepreneur_create = \App\Entrepreneur::create([
 
-            'email'     => $request->email,
-            'rating_af'     => 1,
-            'budget_spent' => 200,
-            'started_work'      =>Date::now(),
-            'finished_work'     =>Date::tomorrow(),
-            'worker_email_af'      => $request->email
-        ]);
 
-//        $smmservice_create=  \App\SMMService::create([
-//
-//            'email'     => $request->email,
-//            'services_for_price'     => $request->activity,
-//            'pricing' => $request->pricing
-//        ]);
-
-        //customer-type yeni ya sahibkar ya freelancer ya agentlik yeni ya S ya F ya A
-
-//        if (\Auth::attempt([
-//
-//            'email' => $request->email,
-//
-//            'password' => $request->password])
-//
-//        ){
-//
-//            return redirect('/profile');
-//
-//        }
-//        $this->send_mail('xasohawer@onemail1.com','Face-Ads Email Verification','By clicking on the following link, you are confirming your email address.
-//             <a href="'.url('user/verify', $user_create->verifyUser->token).'">Confirm Email Address</a>');
-        Mail::to($user_create->email)->send(new VerifyMail($user_create));
-
-        return redirect('login')->with('success', 'Qeydiyyat uğurla keçdi. Verifikasiya üçün zəhmət olmasa emailınıza baxin.');
+//        VACIB
+        $user_create->verified = 1;
+        $user_create->save();
+        return redirect('login')->with('success', 'Qeydiyyat uğurla keçdi. Daxil ola bilərsiniz');
+//        SONRA AKTIV ELE VACIB YUXARIDAKI VERIFY VE ELQELI SAVEI KOMMENTLE SORA
+//        Mail::to($user_create->email)->send(new VerifyMail($user_create));
+//        return redirect('login')->with('success', 'Qeydiyyat uğurla keçdi. Verifikasiya üçün zəhmət olmasa emailınıza baxin.');
 
     }
 
     public function verifyUser($token){
-//        dd($token);
         $verifyUser = \App\VerifyUser::where('token', $token)->first();
         if(isset($verifyUser) ){
             $user = $verifyUser->user;
@@ -361,19 +249,9 @@ class AuthController extends Controller
     }
 
     public function sendVerifyEmail($email){
-//        dd($email);
         $user = \App\User::where('email', $email)->first();
         $verifyuser = \App\VerifyUser::where('email', $email)->first();
         if(isset($user) ) {
-//            $token= Str::random(40);
-//            $user->verifyUser->token=$token;
-
-//            $verifyuser->token=$token;
-//            $verifyuser->update();
-//            $user->save();
-//            $user->verifyUser->save();
-
-//            $user->push();
             Mail::to($email)->send(new VerifyMail($user));
         }
         else{
@@ -382,129 +260,10 @@ class AuthController extends Controller
         return redirect('/login')->with('warning', 'yeni verivikasiya emailı göndərildi');
     }
 
-//    public function profile(Request $request)
-//    {
-//
-////        echo 'PROFILE' . Auth::check();
-////        $user = auth kohne()->user();
-////        $profile_image=$user->profile_image;
-////        return view('profile');
-//        return redirect('/profile');
-//    }
-
     public function showLoginForm()
-
     {
-//        4e5fed707ad79b48267aa3e73efa00e1-us3
-//        $this->send_mail('xasohawer@onemail1.com','Face-Ads Email Verification','By clicking on the following link, you are confirming your email address.
-//         <a href="'.route('login').'">Confirm Email Address</a>');
-
         return view('login-customer');
-//        afh
-
     }
-
-//    use Sendpulse\RestApi\ApiClient;
-//    use Sendpulse\RestApi\ApiClient;
-//    use Sendpulse\RestApi\Storage\FileStorage;
-    public function send_mail($emailToSend, $subject, $text)
-    {
-//        $apikey = '4e5fed707ad79b48267aa3e73efa00e1-us3';
-//
-//        $to_emails = array($emailToSend);
-//        $to_names = array('You');
-//
-//        $message = array(
-//            'html'=>'Yo, this is the <b>html</b> portion',
-//            'text'=>'Yo, this is the *text* portion',
-//            'subject'=>'This is the subject',
-//            'from_name'=>'Me!',
-//            'from_email'=>'verifed@example.com',
-//            'to_email'=>$to_emails,
-//            'to_name'=>$to_names
-//        );
-//
-//        $tags = array('WelcomeEmail');
-//
-//        $params = array(
-//            'apikey'=>$apikey,
-//            'message'=>$message,
-//            'track_opens'=>true,
-//            'track_clicks'=>false,
-//            'tags'=>$tags
-//        );
-//
-//        $url = "http://us1.sts.mailchimp.com/1.0/SendEmail";
-//
-//        $ch = curl_init();
-//        curl_setopt($ch, CURLOPT_URL, $url.'?'.http_build_query($params));
-//        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//
-//        $result = curl_exec($ch);
-//        echo $result;
-//        curl_close ($ch);
-//
-//        $data = json_decode($result);
-//        echo "Status = ".$data->status."\n";
-//        --------------
-//        $email = new \SendGrid\Mail\Mail();
-//        $email->setFrom("qaqa@qaqa.com", "Example User");
-//        $email->setSubject($subject);
-//        $email->addTo($emailToSend, "Example User");
-//        $email->addContent(
-//            "text/plain", $text
-//        );
-//        $email->addContent(
-//            "text/html", "<strong>".$text."</strong>"
-//        );
-//        $sendgrid = new \SendGrid('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');
-//        try {
-//            $response = $sendgrid->send($email);
-//            print $response->statusCode() . "\n";
-//            print_r($response->headers());
-//            print $response->body() . "\n";
-//        } catch (Exception $e) {
-//            echo 'Caught exception: ',  $e->getMessage(), "\n";
-//        }
-//        ==============
-
-//        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
-//        $SPApiClient = new ApiClient('31eba642f3d479cc9b564d51126c5ef5', '1a88ebad44cdf5a19d83ac0a3288928d');
-//        $email = array(
-//            'html' => '<p>Hello!</p>',
-//            'text' => 'Hello!',
-//            'subject' => 'Mail subject',
-//            'from' => array(
-//                'name' => 'John',
-//                'email' => 'sender@example.com',
-//            ),
-//            'to' => array(
-//                array(
-//                    'name' => 'Subscriber Name',
-//                    'email' => $email,
-//                ),
-//            ),
-//        );
-//        var_dump($SPApiClient->smtpSendMail($email));
-//        'bcc' => array(
-//        array(
-//            'name' => 'Manager',
-//            'email' => 'manager@example.com',
-//        ),
-//        ),
-//                'attachments' => array(
-//            'file.txt' => file_get_contents(PATH_TO_ATTACH_FILE),
-//        ),
-
-
-//        $SPApiProxy = new \Sendpulse\RestApi\ApiClient('31eba642f3d479cc9b564d51126c5ef5', '1a88ebad44cdf5a19d83ac0a3288928d', new \Sendpulse\RestApi\Storage\FileStorage());
-//        $email = ['html' => $text, 'text' => strip_tags($text), 'subject' => $subject, 'from' => ['name' => 'ZAQQULI', 'email' => 'xasohawerXXX@onemail1.com'], 'to' => [['name' => $email, 'email' => $email]]];
-//        return $SPApiProxy->smtpSendMail($email);
-    }
-
-    /* @POST
-
-     */
 
     public function login(Request $request){
 
@@ -545,28 +304,17 @@ class AuthController extends Controller
 
         }
 
-//        echo 'cascascascasc';
-//        exit;
         return redirect('/login')->with('error', 'Email ve ya şifrə səhfdir');
 
     }
 
-    /* GET
-
-    */
-
     public function logout(Request $request)
 
     {
-//        echo 'aa';
-//        exit;
 
         if(\Auth::check())
 
         {
-
-//            echo 'logout';
-//            exit;
             \Auth::logout();
 
             $request->session()->invalidate();
@@ -575,11 +323,6 @@ class AuthController extends Controller
 
         return  redirect('login');
 
-//        $this->guard()->logout();
-//
-//        $request->session()->invalidate();
-//
-//        return $this->loggedOut($request) ?: redirect('/');
 
     }
 

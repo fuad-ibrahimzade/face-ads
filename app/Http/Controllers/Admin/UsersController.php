@@ -151,6 +151,31 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
+        if(true){
+            $userDB = \App\User::find($id);
+            $verifyUser = \App\VerifyUser::where('email', $userDB->email)->first();
+            if(isset($verifyUser)){
+                \App\VerifyUser::destroy($verifyUser->id);
+            }
+            $businessMarks= \App\BusinessMark::where('email', $userDB->email)->get();
+            if(isset($businessMarks)){
+                foreach ($businessMarks as $businessMark){
+                    $public_idOLD_BusinessMarkImage=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$businessMark->profile_image);
+                    $delete_BusinessMarkImage=\Cloudinary\Uploader::destroy($public_idOLD_BusinessMarkImage);
+                    \App\BusinessMark::destroy($businessMark->id);
+                }
+            }
+            $smmServices= \App\SMMService::where('email', $userDB->email)->get();
+            if(isset($smmServices)) {
+                foreach ($smmServices as $smmService) {
+                    \App\SMMService::destroy($smmService->id);
+                }
+            }
+
+            $public_idOLD_UserImage=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$userDB->profile_image);
+            $delete_UserImage=\Cloudinary\Uploader::destroy($public_idOLD_UserImage);
+        }
+
         User::destroy($id);
 
         return redirect('admin/users')->with('flash_message', 'User deleted!');

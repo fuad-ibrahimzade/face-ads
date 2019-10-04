@@ -21,10 +21,10 @@ class CreateBusinessMarksTable extends Migration
             $table->string('email');
 //            $table->foreign('email')->references('email')->on('users');
 
-            $table->string('name');
-            $table->string('city');
+            $table->string('name')->nullable();
+            $table->string('city')->nullable();
             $table->json('sector')->nullable();
-            $table->string('activity');
+            $table->string('activity')->nullable();
             $table->string('pricing')->nullable();
             $table->string('profile_image')->nullable();
 

@@ -26,6 +26,9 @@ class CreateSMMServicesTable extends Migration
 
             $table->string('business_mark_id')->nullable();
             $table->string('business_mark_name')->nullable();
+
+            $table->string('work_start')->nullable();
+            $table->string('work_end')->nullable();
 //            $table->unsignedBigInteger('business_mark_id');
 //            $table->bigInteger('business_mark_id')->unsigned()->nullable();
 //            $table->unsignedInteger('business_mark_id')->nullable();

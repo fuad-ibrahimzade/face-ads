@@ -1,42 +1,104 @@
 <!DOCTYPE html>
 <html>
-{{--@include('parts.header')--}}
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{asset('css/kabinet.css')}}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <script src="{{asset('js/app.js')}}"></script>
+    <link rel="stylesheet" type="text/css" href="{{asset('css/app.css')}}">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     @include('parts.scripts')
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
-   <body>
-   {{--<div class="registration_class"></div>--}}
-   {{--@include('parts.navbar')--}}
-   {{--<script type="text/javascript">--}}
-       {{--$(document).ready(function() {--}}
-           {{--evvelkiPImage=$('.thumb_profile_image').attr('src');--}}
-           {{--function readURL(input) {--}}
-               {{--if (input.files && input.files[0]) {--}}
-                   {{--var reader = new FileReader();--}}
-
-                   {{--reader.onload = function (e) {--}}
-                       {{--$('.thumb_profile_image').attr('src', e.target.result);--}}
-                   {{--}--}}
-                   {{--reader.readAsDataURL(input.files[0]);--}}
-               {{--}--}}
-               {{--else {--}}
-                   {{--$('.thumb_profile_image').attr('src', evvelkiPImage);--}}
-               {{--}--}}
-           {{--}--}}
-
-           {{--$(".profile_image").change(function () {--}}
-               {{--readURL(this);--}}
-           {{--});--}}
-       {{--});--}}
-   {{--</script>--}}
-<div class="freelancer" style="background-color:#e6e6e6"><br>
-<img style="width: auto; height: 80px;margin-left: auto;margin-right: auto; display: block" src="{{asset('images/logo.png')}}">
-<fieldset style=" background-color:white ;width: 45%; margin-left: auto;margin-right: auto">
+<body>
+<div class="">
+    <div class="">
+        <ul >
+            <li><img src="{{(Auth::user()->profile_image)}}" style="margin-left : 4px; width: 45%;"></li>
+            <li><em style="font-style: italic;">{{ Auth::user()->name }}</em> </li>
+            <li style="font-size: 15px;">
+                <strong>Haqqında  </strong><br>
+                {{Auth::user()->activity}}
+            </li>
+            <li style="font-size: 15px;"><strong>Fəaliyyət sektoru</strong>  <br>
+                @foreach(Auth::user()->sector as $sector)
+                    @if($loop->index<count(Auth::user()->sector)-1)
+                        {{$sector .', '}}
+                    @else
+                        {{$sector .' '}}
+                    @endif
+                @endforeach
+            </li>
+            <li style="font-size: 15px;"><strong>Yerləşdiyi məkan</strong><br>
+                @if(Auth::user()->street)
+                    {{ Auth::user()->street.', '.Auth::user()->city }}
+                @else
+                    {{ Auth::user()->city }}
+                @endif
+            </li>
+            <li>
+                <strong>Xidmət paketlərinin qiymətləri</strong><br>
+                <em style="font-style: italic;">1- </em>
+                <select name="pricing_profile" class="pricing_profile">
+                    @foreach(Auth::user()->pricing as $pricing)
+                        <option>{{$pricing}}</option>
+                    @endforeach
+                </select>
+                @if(isset(Auth::user()->pricing2))
+                    &nbsp;
+                    <em style="font-style: italic;">2- </em>
+                    <select name="pricing_profile2[]" class="pricing_profile2">
+                        @foreach(Auth::user()->pricing2 as $pricing)
+                            <option>{{$pricing}}</option>
+                        @endforeach
+                    </select>
+                @endif
+                @if(isset(Auth::user()->pricing3))
+                    &nbsp;
+                    <em style="font-style: italic;">3- </em>
+                    <select name="pricing_profile3[]" class="pricing_profile3">
+                        @foreach(Auth::user()->pricing3 as $pricing)
+                            <option>{{$pricing}}</option>
+                        @endforeach
+                    </select>
+                @endif
+            </li>
+            @if(true)
+                @if(isset(Auth::user()->social_links))
+                    <li style="font-size: 15px;"><strong>Sosial Profiller</strong><br>
+                        @foreach(Auth::user()->social_links as $social_link_name => $social_link_url)
+                            {{--{{ $social_link }}<br>--}}
+                            @if(isset($social_link_url))
+                                <a class="btn" style="width: 60px" href="{{$social_link_url}}">
+                                    <img src="{{asset('images/social/'.$social_link_name.'-color.svg')}}" alt="{{$social_link_name}}" height="20px" style="filter: grayscale(0%);">
+                                </a>
+                                {{--<br>--}}
+                                {{--&nbsp;&nbsp;--}}
+                            @endif
+                        @endforeach
+                    </li>
+                @endif
+            @endif
+            <li><a href="{{url('profile/'.Auth::user()->email)}}" class="go_profile active btn-light">Profilə qayıt </a></li>
+            <li><a href="{{url('logout')}}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Hesabdan Çıx</a></li>
+        </ul>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    </div>
+<div class="freelancer" style="margin-left:10%;"><br>
+    <a href="{{url('profile/'.Auth::user()->email)}}">
+        <img style="width: auto; height: 80px;margin-left: auto;margin-right: auto; display: block" src="{{asset('images/logo.png')}}">
+    </a>
+<fieldset style=" background-color:white ;background-color:#e6e6e6;width: 650px; margin-left: auto;margin-right: auto;border-radius: 10px">
 <form style= "margin-left:25px"; method="post" action="{{url('profile/'.Auth::user()->email.'/edit')}}" enctype="multipart/form-data">
     @csrf
-<h3> Agentlik Qeydiyyatının Yenilənməsi </h3>
+<h3 class="text-center"> Agentlik Qeydiyyatının Yenilənməsi </h3>
     <div class="main_errors">
         @if ($errors->any())
             @foreach ($errors->all() as $error)
@@ -64,92 +126,125 @@
  	Xidmət Göstərdiyiniz Sektoru Seçin <br>
  </span>
  	<br>
-
+    <div style="margin-left: 25px">
     <div class="sector_parent">
- 	{{--<input type="checkbox" name="sector" value="Tibb" {{Auth::user()->sector=='Tibb' ? ' checked': ''}} > Tibb və Xəstəxana--}}
-  {{--<input style="margin-left: 19px;" type="checkbox" name="sector" value="Əyləncə" {{Auth::user()->sector=='Əyləncə' ? ' checked': ''}}> Restoran və Əyləncə Mərkəzləri <br>--}}
-  {{--<input type="checkbox" name="sector" value="Tikinti" {{Auth::user()->sector=='Tikinti' ? ' checked': ''}}> Tikinti--}}
-  {{--<input style="margin-left: 95px;" type="checkbox" name="sector" value="Maliyyə" {{Auth::user()->sector=='Maliyyə' ? ' checked': ''}}> Maliyyə və Bank <br>--}}
-  {{--<input type="checkbox" name="sector" value="Avtomabil" {{Auth::user()->sector=='Avtomabil' ? ' checked': ''}}> Avtomabil--}}
-  {{--<input style="margin-left: 69px;" type="checkbox" name="sector" value="Turizm" {{Auth::user()->sector=='Turizm' ? ' checked': ''}}> Turizm və Otel <br>--}}
         @foreach(Auth::user()->sector as $sector)
             <div class="isector_parent">
                 <input type="checkbox" name="sector[]" class="sector" value="{{$sector}}"  checked> {{' '.$sector}}
             </div>
         @endforeach
     </div>
-  {{--<input type="checkbox" name="sector" value="Bütün" {{Auth::user()->sector=='Bütün' ? ' checked': ''}}> Bütün Sektorlar &nbsp&nbsp&nbsp--}}
-  {{--<input placeholder="Sektor Əlavə Et " type="text" name=""> --}}
     <input placeholder="Digər Sektor Daxil Edin " type="text" name="new_sector_temp" class="new_sector_temp"> <input type="button" name="" value="Sektoru Əlavə Et" class="sector_adder" id="sector_adder">
-    <input type="button" style="position: element(#sector_adder); transform: translateX(300px) translateY(-20px); height:20px; width:20px;" name="new_sector_remover" value="Seçilmiş Sektoru Poz" class="new_sector_remover ui-button-icon-primary ui-icon ui-icon-trash" style="width:5%; height:100%; display:block">
-    <br><br>
+    {{--<input type="button" style="position: element(#sector_adder); transform: translateX(300px) translateY(-20px); height:20px; width:20px;" name="new_sector_remover" value="Seçilmiş Sektoru Poz" class="new_sector_remover ui-button-icon-primary ui-icon ui-icon-trash" style="width:5%; height:100%; display:block">--}}
+        <a style="position: element(#sector_adder);" name="new_sector_remover" title="Seçilmiş Sektoru Poz" class="new_sector_remover btn btn-default fa fa-trash-o fa-lg"></a>
+        <br><br>
   <span>Xidmətinizin Qiymət Aralığını Seçin</span> <br>
-    <div class="qutu_parent">
-  <select multiple='multiple'  name="pricing[]" class="pricing" id="pricing" {{isset(Auth::user()->pricing2)? ' disabled': ''}}>
-      @foreach(Auth::user()->pricing as $pricing)
-          <option>{{$pricing.' '.auth()->user()->currency}}</option>
-      @endforeach
-    {{--<option>0-250 AZN</option>--}}
-    {{--<option>251-400 AZN</option>--}}
-    {{--<option>401-600 AZN</option>--}}
-    {{--<option>601-daha çox </option>--}}
-  </select>
+    <div class="qutu_parent d-flex justify-content-start">
+    @if(isset(Auth::user()->pricing))
+            <div class="flex-column pricing_group">
+                <em style="font-style: italic; display: inline-block;">1- </em>&nbsp;&nbsp;
+            </div>
+      <select multiple='multiple'  name="pricing[]" class="pricing flex-column " id="pricing" {{isset(Auth::user()->pricing2)? ' disabled': ''}}>
+          @foreach(Auth::user()->pricing as $pricing)
+              @if($loop->index==0)
+                  <option  selected>{{$pricing.' '.auth()->user()->currency}} </option>
+              @else
+                  <option>{{$pricing.' '.auth()->user()->currency}} </option>
+              @endif
+          @endforeach
+      </select>
+    @endif
     @if(isset(Auth::user()->pricing2))
-        <select multiple='multiple' name="pricing2[]" class="pricing2" {{isset(Auth::user()->pricing3)? ' disabled': ''}}>
-            {{--@foreach(Auth::user()->smmservices as $smmservice)--}}
-            {{--<option value="{{ $smmservice->packet_price }}">{{ $smmservice->packet_price }}</option>--}}
-            {{--@endforeach--}}
+            <div class="flex-column pricing_group2">
+                <em style="font-style: italic; display: inline-block;">2- </em>&nbsp;&nbsp;
+            </div>
+        <select multiple='multiple' name="pricing2[]" class="pricing2 flex-column" {{isset(Auth::user()->pricing3)? ' disabled': ''}}>
             @foreach(Auth::user()->pricing2 as $pricing)
-                <option>{{$pricing.' '.auth()->user()->currency}}</option>
+                <option {{$loop->index==0 ? ' selected': ' '}}>{{$pricing.' '.auth()->user()->currency}}</option>
             @endforeach
         </select>
     @endif
     @if(isset(Auth::user()->pricing3))
         {{--<br>--}}
-        <select multiple='multiple' name="pricing3[]" class="pricing3">
-            {{--@foreach(Auth::user()->smmservices as $smmservice)--}}
-            {{--<option value="{{ $smmservice->packet_price }}">{{ $smmservice->packet_price }}</option>--}}
-            {{--@endforeach--}}
+            <div class="flex-column pricing_group3">
+                <em style="font-style: italic; display: inline-block;">3- </em>&nbsp;&nbsp;
+            </div>
+        <select multiple='multiple' name="pricing3[]" class="pricing3 flex-column">
             @foreach(Auth::user()->pricing3 as $pricing)
-                <option>{{$pricing.' '.auth()->user()->currency}}</option>
+                <option {{$loop->index==0 ? ' selected': ' '}}>{{$pricing.' '.auth()->user()->currency}}</option>
             @endforeach
         </select>
     @endif
     </div>
-    <button type="button" class="btn icon-btn btn-success new_price_box_adder"  >
+    <button type="button" class="btn icon-btn btn-success new_price_box_adder" style="display: none;">
         <span class="glyphicon btn-glyphicon glyphicon-plus img-circle text-success"></span>
-        Yeni Qiymət qutu
+        Yeni Qiymət paketi
     </button>
-    <input type="button" style="position: element(#pricing); transform: translateX(0%) translateY(0%); height:1%; width:3%;" name="new_price_remover" value="Seçilmiş Qiymət Aralığını Poz" class="new_price_remover ui-button-icon-primary ui-icon ui-icon-trash" style="width:5%; height:100%">
+    {{--<input type="button" style="position: element(#pricing); transform: translateX(0%) translateY(0%); height:1%; width:3%;" name="new_price_remover" value="Seçilmiş Qiymət Aralığını Poz" class="new_price_remover ui-button-icon-primary ui-icon ui-icon-trash" style="width:5%; height:100%">--}}
     <p>
         <label for="price-amount" >Qiymət aralığı:</label>
         <input type="text" id="price-amount" style="border:0; color:#146e27; font-weight:bold;" onkeypress="return false;" spellcheck=false />
     </p>
 
-    <div id="price-slider-range"></div><br>
+    <div id="price-slider-range" style="width: 550px"></div><br>
   {{--<br>--}}
   {{--<br>--}}
   <input type="button" name="" value="Qiymət Aralığını Əlavə Et" class="new_price_adder">
+        <a style="position: element(#pricing); transform: translateX(0%) translateY(0%); " name="new_price_remover" title="Seçilmiş Qiymət Aralığını Poz" class="new_price_remover btn btn-default fa fa-trash-o fa-lg"></a>
   <br>
-<span style="font-family:Georgia, serif;">Fəaliyyət göstərdiyiniz ölkəni seçin </span><br> <br>
-  <select name="city" class="city">
-      <option class="first_city" selected> {{Auth::user()->city}} </option>
-  	{{--<option> Bakı, Azərbyacan </option>--}}
-  	{{--<option>Ankara Türkiyə</option>--}}
-  	{{--<option>Moskva Rusiya</option>--}}
-  	{{--<option>Ölkə Əlavə Et</option>--}}
-  </select><br><br>
-    <input style="margin-left: 35px;" placeholder="Şəhət, Ölkə" type="text" name="new_city_temp" class="new_city_temp"> <input type="button" name="" value="Ölkə Əlavə Et" class="new_city_adder"><br><br><br>
+    <br><br>
+        <div class="socials_parent">
+            @if(true)
+                @if(isset(Auth::user()->social_links))
+                    <span style=" font-family:Georgia, serif; margin-left: 25px;">
+                        Malik Olduuğunuz Sosial Profillər <br>
+                    </span>
+                    <br>
+                    @foreach(Auth::user()->social_links as $key => $value)
+                        @if(isset($value))
+                            <div class="isocial_parent">
+                                <label for="{{strtolower($key)}}-social" class="btn btn-default" style="">
+                                    <img src="{{asset('images/social/'.$key.'-color.svg')}}" alt="{{$key}}" height="20px" style="filter: grayscale(0%);">
+                                    {{$key}}
+                                </label>
+                                &nbsp;
+                                <input style="" placeholder="{{$key}} Profile" type="text" name="social[]" id="{{strtolower($key)}}-social" value="{{$value}}">
+                            </div>
+                        @else
+                            <div class="isocial_parent">
+                                <label for="{{strtolower($key)}}-social" class="btn btn-default" style="">
+                                    <img src="{{asset('images/social/'.$key.'-color.svg')}}" alt="{{$key}}" height="20px" style="filter: grayscale(100%);">
+                                    {{$key}}
+                                </label>
+                                &nbsp;
+                                <input style="" placeholder="{{$key}} Profile" type="text" name="social[]" id="{{strtolower($key)}}-social" value="">
+                            </div>
+                        @endif
+                    @endforeach
+                @else
+                    @foreach(array('Facebook','Twitter','Instagram','Youtube','Pinterest','Whatsapp','Yelp','Skype') as $key)
+                        <div class="isocial_parent">
+                            <label for="{{strtolower($key)}}-social" class="btn btn-default" style="">
+                                <img src="{{asset('images/social/'.$key.'-color.svg')}}" alt="{{$key}}" height="20px" style="filter: grayscale(100%);">
+                                {{$key}}
+                            </label>
+                            &nbsp;
+                            <input style="" placeholder="{{$key}} Profile" type="text" name="social[]" id="{{strtolower($key)}}-social" value="">
+                        </div>
+                    @endforeach
+                @endif
+            @endif
+        </div>
+        <br>
     <span  style="margin-left: 5%">Şifrəni Yaz</span>  <span style="margin-left: 18%;">Şifrəni Təkrar Yazın</span> <br>
     <input type="password" name="password">  <input style="margin-left: 25px;" type="password" name="password_confirmation">
 
 <br>
 <br>
-{{--<input type="checkbox" name=""> Şərtləri Qəbul Edirəm <br>--}}
-{{--<a style="text-decoration-line: none;" "color:#ff1a1a;"   href="">Şərtlər və Qaydalar</a> --}}
-    <input style="margin-left: 28%" type="submit" name="submit" value="Düzəlişi Tamamla"><br>
+    <input style="margin-left: 28%; display: none" type="submit" name="submit" value="Düzəlişi Tamamla">
+    <input style="margin-left: 28%" type="button" name="submit2" value="Düzəlişi Tamamla"><br>
     {{--<p> Hesabım var, <a style="text-decoration-line: none;" href="afh.html">Daxil Ol</a></p>--}}
-
+    </div>
  </form>
 </fieldset>
 
@@ -157,6 +252,26 @@
 <br>
 <br>
 </div>
-@include('parts.footer')
-   </body>
+    <div class="modal fade" id="emailChangeModal" tabindex="-1" role="dialog" aria-labelledby="emailChangeModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailChangeModalLabel">Emailı dəyişməyə əminsinizmi?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="">
+                    Email dəyişdikdə yenidən login etməli olacaqsınız.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Geri qayıt</button>
+                    <button type="button" class="btn btn-primary">Davam Elə</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="text-center" style=" z-index: -1;padding-bottom: 20px; text-align: center; position: relative; width:100%; clear: both;">&copy Bütün Hüquqlar Qorunur <br>FaceAds 2019</footer>
+</div>
+</body>
 </html>

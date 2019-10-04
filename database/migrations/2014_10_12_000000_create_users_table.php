@@ -29,6 +29,8 @@ class CreateUsersTable extends Migration
             $table->json('pricing')->nullable();
             $table->json('pricing2')->nullable();
             $table->json('pricing3')->nullable();
+            $table->json('social_links')->nullable();
+
             $table->string('currency')->nullable()->default('AZN');
             $table->string('city')->nullable();
 

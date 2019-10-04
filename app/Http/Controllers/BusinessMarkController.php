@@ -11,23 +11,16 @@ use Illuminate\Support\Facades\Session;
 
 class BusinessMarkController extends Controller
 {
-//    use AuthenticatesUsers;
-//    protected $redirectTo = '/profile';
-    //
+
     public function __construct()
     {
-//        $this->middleware('guest')->except('logout');
         $this->middleware('auth');
-//        $this->middleware('auth_entrepreneur');
         $this->middleware('right_user_made_login');
-//        ->except(['show_business_mark_analyse'])
     }
 
     public function show_business_mark_analyse($email,$id)
     {
-//        add($email);
         return json_encode(array('assofjulia'=>1212));
-//        return view('businessmarks.businessMark');
     }
 
     public function show_business_mark_form()
@@ -56,7 +49,7 @@ class BusinessMarkController extends Controller
 //        /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/   hamsini goturen kasha email
         $validate = \Validator::make($request->all(), [
 
-            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9 ,.\'-]+$/i',
+            'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9üÜöÖəƏğĞçÇşŞ ,.\'-]+$/i',
 
             'profile_image' => 'required|mimes:jpeg,png,jpg,gif,svg',
 
@@ -67,21 +60,9 @@ class BusinessMarkController extends Controller
             'city' 		=> 'required'
 
         ], $customMessages);
-//        'password_confirmation' => 'required ',
-//        |max:2048     profile_image-den
-
-//        'customer_type' 		=> 'required'
-//        'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         if( $validate->fails()){
 
-//            $messages = $validate->messages();
-//
-//            foreach ($messages->all('<li>:message</li>') as $message)
-//            {
-//                echo $message;
-//            }
-//            exit;
             return redirect()
 
                 ->back()
@@ -90,26 +71,15 @@ class BusinessMarkController extends Controller
 
         }
 
-//        $avatarName = $request->name.'_avatar'.time().'.'.$request->profile_image->getClientOriginalExtension();
-//
-//        $request->profile_image->storeAs('public/avatars',$avatarName);
+        if(!$_FILES["profile_image"]["tmp_name"]){
+            return redirect()
+                ->back()
+                ->withErrors(['şəkil seçilməyib'])->withInput();
+        }
 
-        $client = new FilestackClient('AcDOjh26RKicWlRgz3T6Xz');
-        $filelink = $client->upload($_FILES["profile_image"]["tmp_name"]);
-        $avatarName=$filelink->url();
+        $cloudnaryFile=\Cloudinary\Uploader::upload($_FILES["profile_image"]["tmp_name"]);
+        $avatarName=cloudinary_url($cloudnaryFile['public_id']);
 
-//        ==============
-//        $image = $request->file('profile_image');
-//        $name = Str::slug($request->input('name')).'_'.time();
-//        $folder = '/uploads/images/';
-//        $filePath = $folder . $name. '.' . $image->getClientOriginalExtension();
-////        $this->uploadOne($image, $folder, 'public', $name);
-//        // Set user profile image path in database to filePath
-//        $name = !is_null($name) ? $name : Str::random(25);
-//        $file = $image->storeAs($folder, $name.'.'.$image->getClientOriginalExtension(), 'public');
-////        $user->profile_image = $filePath;
-//        $avatarName=$filePath;
-//        ==============
         $customer_type= $request->is('afq*') ? 'Agency' : ($request->is('sahibkar*') ? 'Entrepreneur' : ( $request->is('freelancer*') ? 'Freelancer' : 'NULL TYPE') );
 
         $user_create = \App\BusinessMark::create([
@@ -128,24 +98,6 @@ class BusinessMarkController extends Controller
 
         ]);
 
-//        if (\Auth::attempt([
-//
-//            'email' => $request->email,
-//
-//            'password' => $request->password])
-//
-//        ){
-//
-//            return redirect('/profile');
-//
-//        }
-//        $this->send_mail('xasohawer@onemail1.com','Face-Ads Email Verification','By clicking on the following link, you are confirming your email address.
-//             <a href="'.url('user/verify', $user_create->verifyUser->token).'">Confirm Email Address</a>');
-//        Mail::to($user_create->email)->send(new VerifyMail($user_create));
-
-//        return redirect('login')->with('success', 'Qeydiyyat uğurla keçdi. Verifikasiya üçün zəhmət olmasa emailınıza baxin.');
-
-//        return view('businessMark');
         return redirect('profile/'.Auth::user()->email);
     }
     public function update_business_mark(Request $request)
@@ -154,11 +106,6 @@ class BusinessMarkController extends Controller
         $businessMark=\App\BusinessMark::where('id',$id)->first();
         if ($request->isMethod('GET'))
         {
-//            if($businessMark->id!=-1){
-////                print(Auth::user())
-//                print($businessMark->smmservices());
-//                exit;
-//            }
             return view('businessmarks.businessMarkUpdate',['businessMark' => $businessMark]);
         }
         if ($request->isMethod('POST'))
@@ -178,7 +125,7 @@ class BusinessMarkController extends Controller
             ];
             $validate = \Validator::make($request->all(), [
 
-                'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9 ,.\'-]+$/i',
+                'name' 		=> 'required|string|regex:/^[a-zA-Z][a-zA-Z0-9üÜöÖəƏğĞçÇşŞ ,.\'-]+$/i',
 
                 'profile_image' => 'sometimes|mimes:jpeg,png,jpg,gif,svg',
 
@@ -199,30 +146,27 @@ class BusinessMarkController extends Controller
             $businessMark->city= isset($request->city) ? $request->city : $businessMark->city;
 
             if($request->hasFile('profile_image')){
-//                \File::delete('storage/avatars/'.$businessMark->profile_image);
-//                $avatarName = $request->name.'_avatar'.time().'.'.$request->profile_image->getClientOriginalExtension();
-//                $request->profile_image->storeAs('public/avatars',$avatarName);
-//                $businessMark->profile_image=$avatarName;
-
-                $appsecret='IC3COZTS5RAJRKVAPJU2DZY2JQ';
-                $security = new FilestackSecurity($appsecret);
-                $client = new FilestackClient('AcDOjh26RKicWlRgz3T6Xz', $security);
                 if(!(\UsersTableSeeder::isDefaultFileStackUrl($businessMark->profile_image))){
-                    $handleOLD=str_replace('https://cdn.filestackcontent.com/','',$businessMark->profile_image);
-                    $client->delete($handleOLD);
+                    $public_idOLD=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$businessMark->profile_image);
+                    $delete=\Cloudinary\Uploader::destroy($public_idOLD);
                 }
-                $filelink = $client->upload($_FILES["profile_image"]["tmp_name"]);
-                $avatarName=$filelink->url();
+                $cloudnaryFile=\Cloudinary\Uploader::upload($_FILES["profile_image"]["tmp_name"]);
+                $avatarName=cloudinary_url($cloudnaryFile['public_id']);
+
                 $businessMark->profile_image=$avatarName;
             }
             $businessMark->update();
             return redirect('profile/'.Auth::user()->email);
         }
-//        return view('businessMark');
     }
     public function delete_business_mark(Request $request)
     {
         $id=$request->route()->parameter('id');
+
+        $profile_image=\App\BusinessMark::where('id',$id)->first()->profile_image;
+        $public_idOLD=str_replace('http://res.cloudinary.com/deov4g3ku/image/upload/','',$profile_image);
+        $delete=\Cloudinary\Uploader::destroy($public_idOLD);
+
         $businessMark=\App\BusinessMark::where('id',$id)->delete();;
         return redirect('profile/'.Auth::user()->email);
     }

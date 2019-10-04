@@ -20,10 +20,6 @@ class BusinessMark extends Model
     }
     public function smmservices()
     {
-//        smmservice_id         business_mark_id
-//        return $this->belongsToM('App\User','email','email');
-//        $this->belongsToMany('App\Role', 'role_user', 'user_id', 'role_id');
-//        return $this->hasMany('App\SMMService', 'smmservice_id', 'id');
         return SMMService::where('business_mark_id',$this->id)->get();
     }
 }
